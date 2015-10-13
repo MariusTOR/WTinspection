@@ -75,7 +75,11 @@ for i=1:12
     index=find(waveht(index)<ctv_max_wave);
     
     counter=0;
-    for ii=1:length(index)
+    for ii=2:length(index)
+        if waveht(index(ii))>=waveht(index(ii-1))
+            counter=counter+1;
+        else
+            counter
         if index(ii)>ctv_max_wave
             counter=counter+1;
         end
