@@ -61,29 +61,67 @@ for i=1:12
     index=find(buoymonth==i);
     month_mean = mean(wndspd(index));
 
+    %
+    % Wind speed distribution (Weibull)
+    %
+    
     k_wndspd(i) = (std(wndspd(index)/month_mean)^-1.086);
-    c_wndspd(i) = month_mean/gamma(1+1/k_wndspd);
+    c_wndspd(i) = month_mean/gamma(1+1/k_wndspd(i));
     
-    [mu,~,~]=circ_mean(wnddir(index)');
-    kappa=circ_kappa(wnddir(index)');
-    [pdf,bins]=circ_vmpdf(wnddir(index)',mu,kappa);
+    %
+    % Wind direction distribution (von Mises)
+    %
+    
+    [mu(i),~,~]=circ_mean(wnddir(index)');
+    kappa(i)=circ_kappa(wnddir(index)');
+    [pdf,bins]=circ_vmpdf(wnddir(index)',mu(i),kappa(i));
     wnddir_pdf(i,1:length(wnddir(index)))=pdf;
-    
+
+    %
+    % Wave height distribution (Weibull)
+    %
+        
     month_mean = mean(waveht(index));
     k_wave(i) = (std(waveht(index)/month_mean)^-1.086);
-    c_wave(i) = month_mean/gamma(1+1/k_wave);
+    c_wave(i) = month_mean/gamma(1+1/k_wave(i));
     index=find(waveht(index)<ctv_max_wave);
     
-    counter=0;
-    for ii=2:length(index)
-        if waveht(index(ii))>=waveht(index(ii-1))
-            counter=counter+1;
-        else
-            counter
-        if index(ii)>ctv_max_wave
-            counter=counter+1;
+    %
+    % Wave persistence distribution (Weibull)
+    % Find distribution for persistence times of waves above/below critical
+    %
+    
+    high_counter=0;
+    low_counter=0;
+    for ii=1:length(index)
+        if waveht(index(ii))>=ctv_max_wave
+            high_counter=high_counter+1; % [hr]
+        elseif high_counter~=0
+            high_collector(ii)=high_counter+rand; % [hr]
+            high_counter=0;
+        end
+        
+        if waveht(index(ii))<ctv_max_wave
+            low_counter=low_counter+1; % [hr]
+        elseif low_counter~=0
+            low_collector(ii)=low_counter+rand; % [hr]
+            low_counter=0;
         end
     end
+    high_collector=high_collector*3600; % [s]
+    low_collector=low_collector*3600; % [s]
+    
+    index=find(high_collector);
+    high_wave_time(i,1:length(index))=high_collector(index);
+    month_mean=mean(high_collector(index));
+    k_hwavetime(i) = (std(high_collector(index))/month_mean)^-1.086;
+    c_hwavetime(i) = month_mean/gamma(1+1/k_hwavetime(i));
+    
+    index=find(low_collector);
+    low_wave_time(i,1:length(index))=low_collector(index);
+    month_mean=mean(low_collector(index));
+    k_lwavetime(i) = (std(low_collector(index))/month_mean)^-1.086;
+    c_lwavetime(i) = month_mean/gamma(1+1/k_lwavetime(i));
 end
 
 % Select date
