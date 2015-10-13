@@ -33,7 +33,7 @@ load('airEZ_baseline.mat');
 % CTV wave restrictions
 ctv_max_wave=2.5*m2f;
 
-% Load buoy data and elinate out of range data points
+% Load buoy data and eliminate out of range data points
 buoydata=xlsread('2012buoydata.xlsx','B3:J8074');
 for i=1:length(buoydata)
   if(buoydata(i,5)<90||buoydata(i,6)<90||buoydata(i,4)>360) 
@@ -72,10 +72,10 @@ for i=1:12
     % Wind direction distribution (von Mises)
     %
     
-    [mu(i),~,~]=circ_mean(wnddir(index)');
-    kappa(i)=circ_kappa(wnddir(index)');
-    [pdf,bins]=circ_vmpdf(wnddir(index)',mu(i),kappa(i));
-    wnddir_pdf(i,1:length(wnddir(index)))=pdf;
+    [mu_wnddir(i),~,~]=circ_mean(wnddir(index)');
+    kappa_wnddir(i)=circ_kappa(wnddir(index)');
+%     [pdf,bins]=circ_vmpdf(wnddir(index)',mu_wnddir(i),kappa_wnddir(i));
+%     wnddir_pdf(i,1:length(wnddir(index)))=pdf;
 
     %
     % Wave height distribution (Weibull)
@@ -130,11 +130,10 @@ while(month==0)
     month=round(rand*12);
 end
 month_index=find(buoymonth==month);
-day_index=buoyday(month_index);
+day_index=1;
 
-
-% [n_landings,time]=mission_wt_inspection(weight,spec_energy,...
-%     Battery_lb,hover_dwld_factor,num_rotors,visc,num_wings,S,prop_efficiency,...
-%      c,Cd0_struts,Cd0_gear,Cd0_wing,A_gear,b,e,vel_stall,tip_speed,rotor_area,sig,fm,...
-%      speed_sound_SL,ipf,wnddir,wndspd,daylight,wnddir_pdf,wndspd_pdf,days,month,...
-%      day);
+ [n_landings,time]=mission_wt_inspection(weight,spec_energy,...
+     Battery_lb,hover_dwld_factor,num_rotors,visc,num_wings,S,prop_efficiency,...
+      c,Cd0_struts,Cd0_gear,Cd0_wing,A_gear,b,e,vel_stall,tip_speed,rotor_area,sig,fm,...
+      speed_sound_SL,ipf,k_wndspd,c_wndspd,mu_wnddir,kappa_wnddir,k_wave,c_wave,...
+      k_hwavetime,c_hwavetime,k_lwavetime,c_lwavetime,month,daylight);
